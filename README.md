@@ -1,5 +1,7 @@
 # WebAssembly implementation of Conway's Game of Life
 
+[Example](https://andyherbert.github.io/gol-wasm/)
+
 Requirements:
  - The LLVM compiler (llvm) >= v8
  - BinaryEn (binaryen) for wasm-opt
