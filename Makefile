@@ -1,8 +1,8 @@
 CC = clang
-TARGET ?= wasm/main.wasm
+TARGET ?= gol-wasm.wasm
 WAT_TARGET = $(addsuffix .wat, $(basename $(TARGET)))
 WASM_FLAGS = -nostdlib -Wall --target=wasm32 -Wl,--allow-undefined,--no-entry,--export=start
-WASM_OPT_FLAGS = -O --asyncify --pass-arg=asyncify-imports@env.next_frame
+WASM_OPT_FLAGS = -O --asyncify --pass-arg=asyncify-imports@env.next_frame --pass-arg=asyncify-ignore-indirect
 SRC_DIRS ?= ./src
 
 SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)

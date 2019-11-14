@@ -1,8 +1,8 @@
 #include "wasm.h"
 
-typedef enum cell {empty, dead, alive, new} cell;
+typedef enum {empty, dead, alive, new} cell;
 
-RGBA const clear = {0, 0, 0, 0};
+RGBA const background = {0, 0, 100, 255};
 RGBA const light_blue = {190, 190, 255, 255};
 RGBA const blue = {80, 80, 200, 255};
 RGBA const dark_blue = {0, 0, 70, 255};
@@ -52,7 +52,7 @@ void start() {
             RGBA const *col;
             switch(world_pointer[i]) {
                 case empty:
-                    col = &clear;
+                    col = &background;
                     break;
                 case dead:
                     col = &dark_blue;
@@ -76,6 +76,7 @@ void start() {
             world_pointer = world_1;
         }
         next_frame();
-        if (click(MOUSE_BUTTON_LEFT)) restart();
+        if (click(MOUSE_BUTTON_LEFT))
+            restart();
     }
 }

@@ -2,11 +2,12 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Document</title>
+        <title>gol-wasm</title>
         <script type="module">
-        import("./wasm/wasm.js").then(module => module.fetch("./wasm/main.wasm")).then(async ({start, canvas}) => {
+        import * as wasm from "./wasm/wasm.js";
+        wasm.fetch("./gol-wasm.wasm").then(async ({exports, canvas}) => {
             document.getElementById("canvas_container").appendChild(canvas);
-            await start();
+            await exports.start();
         });
         </script>
         <style>
@@ -14,9 +15,6 @@
             height: 100%;
             margin: 0px;
             overflow: hidden;
-        }
-        body {
-            background-color: rgb(0, 0, 100);
         }
         #canvas_container, #canvas_container canvas {
             width: 100%;

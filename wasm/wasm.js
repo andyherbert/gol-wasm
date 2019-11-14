@@ -30,5 +30,5 @@ export async function fetch(url) {
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const screen_data = new Uint8Array(instance.exports.memory.buffer, canvas_data[2], canvas.width * canvas.height * 4);
     canvas.addEventListener("contextmenu", event => event.preventDefault());
-    return {start: instance.exports.start, canvas};
+    return {exports: instance.exports, canvas};
 }
