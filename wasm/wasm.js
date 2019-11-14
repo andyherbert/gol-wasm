@@ -1,49 +1,34 @@
+import {instantiate} from "./asyncify.mjs";
+
 export async function fetch(url) {
     const canvas = document.createElement("canvas");
-    canvas.width = 1280;
-    canvas.height = 520;
     const context = canvas.getContext("2d");
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    const resp = await window.fetch(url);
-    const bytes = await resp.arrayBuffer();
-    const memory = new WebAssembly.Memory({initial: 256, maximum: 256});
-    const table = new WebAssembly.Table({initial: 256, element: "anyfunc"});
-    const wasm = await WebAssembly.instantiate(bytes, {
+    const {instance} = await instantiate(await window.fetch(url).then(resp => resp.arrayBuffer()), {
         env: {
-            memory,
-            __indirect_function_table: table,
             rand: (n) => Math.floor(Math.random() * n),
-            update: (bufferPointer, funcPointer) => {
-                context.clearRect(0, 0, canvas.width, canvas.height);
-                imageData.data.set(new Uint8ClampedArray(memory.buffer, bufferPointer, canvas.width * canvas.height * 4));
-                context.putImageData(imageData, 0, 0);
-                requestAnimationFrame(table.get(funcPointer));
+            next_frame: async () => {
+                return new Promise(resolve => {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    imageData.data.set(screen_data);
+                    context.putImageData(imageData, 0, 0);
+                    requestAnimationFrame(resolve);
+                });
             },
         }
     });
-    canvas.addEventListener("mouseenter", (event) => {
-        if (wasm.instance.exports.mouse_enter)
-            wasm.instance.exports.mouse_enter();
-    });
-    canvas.addEventListener("mousedown", (event) => {
-        if (wasm.instance.exports.mouse_down)
-            wasm.instance.exports.mouse_down(event.button);
-    });
-    canvas.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-    });
-    canvas.addEventListener("mouseup", (event) => {
-        if (wasm.instance.exports.mouse_up)
-            wasm.instance.exports.mouse_up();
-    });
-    canvas.addEventListener("mouseleave", (event) => {
-        if (wasm.instance.exports.mouse_leave)
-            wasm.instance.exports.mouse_leave();
-    });
-    canvas.addEventListener("mousemove", (event) => {
+    const mouse_data = new Uint32Array(instance.exports.memory.buffer, instance.exports.mouse, 3);
+    canvas.addEventListener("mousedown", event => mouse_data[2] = event.button + 1);
+    canvas.addEventListener("mouseup", () => mouse_data[2] = 0);
+    canvas.addEventListener("mousemove", event => {
         const rect = canvas.getBoundingClientRect();
-        if (wasm.instance.exports.mouse_move)
-            wasm.instance.exports.mouse_move(Math.floor((event.clientX - rect.left) / (rect.width / canvas.width)), Math.floor((event.clientY - rect.top) / (rect.height / canvas.height)));
+        mouse_data[0] = Math.floor((event.clientX - rect.left) / (rect.width / canvas.width));
+        mouse_data[1] = Math.floor((event.clientY - rect.top) / (rect.height / canvas.height));
     });
-    return {main: wasm.instance.exports.main, canvas};
+    const canvas_data = new Uint32Array(instance.exports.memory.buffer, instance.exports.canvas, 3);
+    canvas.width = canvas_data[0];
+    canvas.height = canvas_data[1];
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const screen_data = new Uint8Array(instance.exports.memory.buffer, canvas_data[2], canvas.width * canvas.height * 4);
+    canvas.addEventListener("contextmenu", event => event.preventDefault());
+    return {start: instance.exports.start, canvas};
 }

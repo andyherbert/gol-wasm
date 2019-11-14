@@ -4,9 +4,9 @@
         <meta charset="UTF-8">
         <title>Document</title>
         <script type="module">
-        import("./wasm/wasm.js").then(module => module.fetch("./wasm/main.wasm")).then(({main, canvas}) => {
+        import("./wasm/wasm.js").then(module => module.fetch("./wasm/main.wasm")).then(async ({start, canvas}) => {
             document.getElementById("canvas_container").appendChild(canvas);
-            main();
+            await start();
         });
         </script>
         <style>
