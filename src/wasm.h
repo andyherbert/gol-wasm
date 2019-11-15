@@ -18,15 +18,5 @@ typedef struct {uint32_t width, height; RGBA *data;} Canvas;
 typedef struct {uint32_t x, y, button;} Mouse;
 
 RGBA canvas_data[CANVAS_WIDTH * CANVAS_HEIGHT];
-
 Canvas canvas __attribute__((used)) = {.width = CANVAS_WIDTH, .height = CANVAS_HEIGHT, .data = canvas_data};
-
-Mouse __attribute__((used)) mouse = {.x = 0, .y = 0, .button = MOUSE_BUTTON_NONE};
-
-uint8_t click(button) {
-    if (mouse.button == button) {
-        mouse.button = MOUSE_BUTTON_NONE;
-        return true;
-    }
-    return false;
-}
+Mouse mouse __attribute__((used)) = {.x = 0, .y = 0, .button = MOUSE_BUTTON_NONE};

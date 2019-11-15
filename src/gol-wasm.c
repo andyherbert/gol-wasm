@@ -16,33 +16,34 @@ void restart() {
         world_pointer[i] = rand(2) ? new : empty;
 }
 
-void tic(const cell *from, cell *to) {
+void tic(cell *to) {
     for (int y = 0, i = 0; y < CANVAS_HEIGHT; y++) {
         for (int x = 0; x < CANVAS_WIDTH; x++, i++) {
             uint8_t neighbours = 0;
-            if (x > 0 && from[i - 1] > 1) // Left
+            if (x > 0 && world_pointer[i - 1] > 1) // Left
                 neighbours += 1;
-            if (x < CANVAS_WIDTH - 1 && from[i + 1] > 1) // Right
+            if (x < CANVAS_WIDTH - 1 && world_pointer[i + 1] > 1) // Right
                 neighbours += 1;
-            if (y > 0 && from[i - CANVAS_WIDTH] > 1) // Top
+            if (y > 0 && world_pointer[i - CANVAS_WIDTH] > 1) // Top
                 neighbours += 1;
-            if (y < CANVAS_HEIGHT - 1 && from[i + CANVAS_WIDTH] > 1) // Bottom
+            if (y < CANVAS_HEIGHT - 1 && world_pointer[i + CANVAS_WIDTH] > 1) // Bottom
                 neighbours += 1;
-            if (x > 0 && y > 0 && from[i - CANVAS_WIDTH - 1] > 1) // Top left
+            if (x > 0 && y > 0 && world_pointer[i - CANVAS_WIDTH - 1] > 1) // Top left
                 neighbours += 1;
-            if (x < CANVAS_WIDTH - 1 && y > 0 && from[i - CANVAS_WIDTH + 1] > 1) // Top Right
+            if (x < CANVAS_WIDTH - 1 && y > 0 && world_pointer[i - CANVAS_WIDTH + 1] > 1) // Top Right
                 neighbours += 1;
-            if (x > 0 && y < CANVAS_HEIGHT - 1 && from[i + CANVAS_WIDTH - 1] > 1) // Bottom Left
+            if (x > 0 && y < CANVAS_HEIGHT - 1 && world_pointer[i + CANVAS_WIDTH - 1] > 1) // Bottom Left
                 neighbours += 1;
-            if (x < CANVAS_WIDTH - 1 && y < CANVAS_HEIGHT - 1 && from[i + CANVAS_WIDTH + 1] > 1) // Bottom Right
+            if (x < CANVAS_WIDTH - 1 && y < CANVAS_HEIGHT - 1 && world_pointer[i + CANVAS_WIDTH + 1] > 1) // Bottom Right
                 neighbours += 1;
-            if (from[i] > 1) {
+            if (world_pointer[i] > 1) {
                 to[i] = (neighbours == 2 || neighbours == 3) ? alive : dead;
             } else {
                 to[i] = (neighbours == 3) ? new : empty;
             }
         }
     }
+    world_pointer = to;
 }
 
 void start() {
@@ -68,15 +69,11 @@ void start() {
             }
             *((uint32_t *) canvas.data + i) = *((uint32_t *) col);
         }
-        if (world_pointer == world_1) {
-            tic(world_1, world_2);
-            world_pointer = world_2;
-        } else {
-            tic(world_2, world_1);
-            world_pointer = world_1;
-        }
+        tic((world_pointer == world_1) ? world_2 : world_1);
         next_frame();
-        if (click(MOUSE_BUTTON_LEFT))
+        if (mouse.button == MOUSE_BUTTON_LEFT) {
+            mouse.button = MOUSE_BUTTON_NONE;
             restart();
+        }
     }
 }
