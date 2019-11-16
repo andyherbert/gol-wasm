@@ -1,22 +1,22 @@
 #include "wasm.h"
 
-typedef enum {empty, dead, alive, new} cell;
+typedef enum {empty, dead, alive, new} Cell;
 
 RGBA const background = {0, 0, 100, 255};
 RGBA const light_blue = {190, 190, 255, 255};
 RGBA const blue = {80, 80, 200, 255};
 RGBA const dark_blue = {0, 0, 70, 255};
 
-cell world_1[CANVAS_WIDTH * CANVAS_HEIGHT];
-cell world_2[CANVAS_WIDTH * CANVAS_HEIGHT];
-cell *world_pointer = world_1;
+Cell world_1[CANVAS_WIDTH * CANVAS_HEIGHT];
+Cell world_2[CANVAS_WIDTH * CANVAS_HEIGHT];
+Cell *world_pointer = world_1;
 
 void restart() {
     for (uint32_t i = 0; i < CANVAS_WIDTH * CANVAS_HEIGHT; i++)
         world_pointer[i] = rand(2) ? new : empty;
 }
 
-void tic(cell *to) {
+void tic(Cell *to) {
     for (int y = 0, i = 0; y < CANVAS_HEIGHT; y++) {
         for (int x = 0; x < CANVAS_WIDTH; x++, i++) {
             uint8_t neighbours = 0;
